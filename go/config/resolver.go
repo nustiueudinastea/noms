@@ -115,6 +115,12 @@ func (r *Resolver) GetDataset(str string) (datas.Database, datas.Dataset, error)
 	return sp.GetDatabase(), sp.GetDataset(), nil
 }
 
+// GetDatasetFromChunkStore - get a dataset and db from an external chunkstore implementation
+func (r *Resolver) GetDatasetFromChunkStore(cs chunks.ChunkStore, datasetID string) (datas.Database, datas.Dataset, error) {
+	db := datas.NewDatabase(cs)
+	return db, db.GetDataset(datasetID), nil
+}
+
 // Resolve string to a value path. If a config is present,
 //  - if no db spec is present, assume the default db
 //  - if the db spec is an alias, replace it
