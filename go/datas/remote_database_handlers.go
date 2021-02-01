@@ -401,11 +401,11 @@ func handleRootPost(w http.ResponseWriter, req *http.Request, ps URLParams, cs c
 	vs := types.NewValueStore(cs)
 
 	// Even though the Root is actually a Map<String, Ref<Commit>>, its Noms Type is Map<String, Ref<Value>> in order to prevent the root chunk from getting bloated with type info. That means that the Value of the proposed new Root needs to be manually type-checked. The simplest way to do that would be to iterate over the whole thing and pull the target of each Ref from |cs|. That's a lot of reads, though, and it's more efficient to just read the Value indicated by |last|, diff the proposed new root against it, and validate whatever new entries appear.
-	lastMap := validateLast(last, vs)
+	lastMap := ValidateLast(last, vs)
 
-	proposedMap := validateProposed(proposed, last, vs)
+	proposedMap := ValidateProposed(proposed, last, vs)
 	if !proposedMap.Empty() {
-		assertMapOfStringToRefOfCommit(proposedMap, lastMap, vs)
+		AssertMapOfStringToRefOfCommit(proposedMap, lastMap, vs)
 	}
 
 	// If some other client has committed to |vs| since it had |from| at the
@@ -429,7 +429,7 @@ func handleRootPost(w http.ResponseWriter, req *http.Request, ps URLParams, cs c
 		// traverse the Ref<Commit>s stored in the maps, though, just
 		// basically merge the maps together as long the changes to rootMap
 		// and proposedMap were in different Datasets.
-		merged, err := mergeDatasetMaps(proposedMap, rootMap, lastMap, vs)
+		merged, err := MergeDatasetMaps(proposedMap, rootMap, lastMap, vs)
 		if err != nil {
 			verbose.Log("Attempted root map auto-merge failed: %s", err)
 			w.WriteHeader(http.StatusConflict)
@@ -446,7 +446,7 @@ func handleRootPost(w http.ResponseWriter, req *http.Request, ps URLParams, cs c
 	fmt.Fprintf(w, "%v", vs.Root().String())
 }
 
-func validateLast(last hash.Hash, vrw types.ValueReadWriter) types.Map {
+func ValidateLast(last hash.Hash, vrw types.ValueReadWriter) types.Map {
 	if last.IsEmpty() {
 		return types.NewMap(vrw)
 	}
@@ -457,7 +457,7 @@ func validateLast(last hash.Hash, vrw types.ValueReadWriter) types.Map {
 	return lastVal.(types.Map)
 }
 
-func validateProposed(proposed, last hash.Hash, vrw types.ValueReadWriter) types.Map {
+func ValidateProposed(proposed, last hash.Hash, vrw types.ValueReadWriter) types.Map {
 	// Only allowed to skip this check if both last and proposed are empty, because that represents the special case of someone flushing chunks into an empty store.
 	if last.IsEmpty() && proposed.IsEmpty() {
 		return types.NewMap(vrw)
@@ -475,7 +475,7 @@ func validateProposed(proposed, last hash.Hash, vrw types.ValueReadWriter) types
 	return proposedMap
 }
 
-func assertMapOfStringToRefOfCommit(proposed, datasets types.Map, vr types.ValueReader) {
+func AssertMapOfStringToRefOfCommit(proposed, datasets types.Map, vr types.ValueReader) {
 	stopChan := make(chan struct{})
 	defer close(stopChan)
 	changes := make(chan types.ValueChanged)
@@ -500,7 +500,7 @@ func assertMapOfStringToRefOfCommit(proposed, datasets types.Map, vr types.Value
 	}
 }
 
-func mergeDatasetMaps(a, b, parent types.Map, vrw types.ValueReadWriter) (types.Map, error) {
+func MergeDatasetMaps(a, b, parent types.Map, vrw types.ValueReadWriter) (types.Map, error) {
 	aChangeChan, bChangeChan := make(chan types.ValueChanged), make(chan types.ValueChanged)
 	stopChan := make(chan struct{})
 

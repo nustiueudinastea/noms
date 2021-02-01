@@ -226,17 +226,17 @@ func (suite *DatabaseSuite) TestDatasetsMapType() {
 	datasets := suite.db.Datasets()
 	ds, err := suite.db.CommitValue(suite.db.GetDataset(dsID1), types.String("a"))
 	suite.NoError(err)
-	suite.NotPanics(func() { assertMapOfStringToRefOfCommit(suite.db.Datasets(), datasets, suite.db) })
+	suite.NotPanics(func() { AssertMapOfStringToRefOfCommit(suite.db.Datasets(), datasets, suite.db) })
 
 	datasets = suite.db.Datasets()
 	_, err = suite.db.CommitValue(suite.db.GetDataset(dsID2), types.Number(42))
 	suite.NoError(err)
-	suite.NotPanics(func() { assertMapOfStringToRefOfCommit(suite.db.Datasets(), datasets, suite.db) })
+	suite.NotPanics(func() { AssertMapOfStringToRefOfCommit(suite.db.Datasets(), datasets, suite.db) })
 
 	datasets = suite.db.Datasets()
 	_, err = suite.db.Delete(ds)
 	suite.NoError(err)
-	suite.NotPanics(func() { assertMapOfStringToRefOfCommit(suite.db.Datasets(), datasets, suite.db) })
+	suite.NotPanics(func() { AssertMapOfStringToRefOfCommit(suite.db.Datasets(), datasets, suite.db) })
 }
 
 func newOpts(vrw types.ValueReadWriter, parents ...types.Value) CommitOptions {
