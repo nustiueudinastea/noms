@@ -198,7 +198,7 @@ func handleWriteValue(w http.ResponseWriter, req *http.Request, ps URLParams, cs
 }
 
 // Contents of the returned io.ReadCloser are snappy-compressed.
-func buildWriteValueRequest(chunkChan chan *chunks.Chunk) io.ReadCloser {
+func BuildWriteValueRequest(chunkChan chan *chunks.Chunk) io.ReadCloser {
 	body, pw := io.Pipe()
 
 	go func() {

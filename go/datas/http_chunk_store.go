@@ -392,7 +392,7 @@ func sendWriteRequest(u url.URL, auth, vers string, p *nbs.NomsBlockCache, cli h
 		close(chunkChan)
 	}()
 
-	body := buildWriteValueRequest(chunkChan)
+	body := BuildWriteValueRequest(chunkChan)
 	n := int64(0)
 
 	// Sad that we have to buffer this, but required for servers that need a content-length.

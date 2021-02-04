@@ -111,7 +111,7 @@ func TestBuildWriteValueRequest(t *testing.T) {
 	inChunkChan <- &chnx[1]
 	close(inChunkChan)
 
-	compressed := buildWriteValueRequest(inChunkChan)
+	compressed := BuildWriteValueRequest(inChunkChan)
 	gr := snappy.NewReader(compressed)
 
 	outChunkChan := make(chan *chunks.Chunk, len(chnx))
